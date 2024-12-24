@@ -38,4 +38,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error('Error loading data:', error); 
         alert('Error loading data. Please try again later.');
     }
+      paginateTable('stockTable', 10); // Apply pagination
+      paginateTable('customerLedgerTable', 10); // Apply pagination
+
 });
