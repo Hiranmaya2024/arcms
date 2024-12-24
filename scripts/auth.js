@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             /*const user = credentials.find(row => row[0] === username && row[1] === password);*/
 
-            if (user) {
+          /*  if (user) {
                 // Store user info in sessionStorage
                 sessionStorage.setItem('isAuthenticated', 'true');
                 sessionStorage.setItem('userType', user[2]);
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
 /*const users = [
   { username: 'customer', password: '123', role: 'customer' },
   { username: 'staff', password: '123', role: 'staff' }
-];*/
+];*/*/
 
 // Function to authenticate user
 function authenticate(username, password) {
