@@ -25,14 +25,18 @@ function authenticate(username, password) {
                 sessionStorage.setItem('username', username);
 
                 // Redirect based on user type
-                if (user[2] === 'staff') {
+                if (user[2] === 'staff') 
+                {
                     window.location.href = 'staff.html';
-                } else if (user[2] === 'customer') {
+                } else if (user[2] === 'customer') 
+                {
                     window.location.href = 'customer.html';
-                } else {
+                } else 
+                {
                     errorMessage.textContent = 'Unauthorized Access';
                 }
-            } else {
+            } else 
+             {
                 errorMessage.textContent = 'Invalid username or password';
             }
         } /*catch (error) {
@@ -40,7 +44,6 @@ function authenticate(username, password) {
             console.error('Authentication error:', error);
         }*/
     });
-});
 
 // Example: Protecting pages
 if (document.body.dataset.role) {
