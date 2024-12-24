@@ -17,7 +17,7 @@ function authenticate(username, password) {
     user => user.username === username && user.password === password*/
     const user = credentials.find(row => row[0] === username && row[1] === password);
 
-  );
+  
          if (user) {
                 // Store user info in sessionStorage
                 sessionStorage.setItem('isAuthenticated', 'true');
