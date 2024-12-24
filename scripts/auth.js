@@ -35,10 +35,10 @@ function authenticate(username, password) {
             } else {
                 errorMessage.textContent = 'Invalid username or password';
             }
-        } catch (error) {
+        } /*catch (error) {
             errorMessage.textContent = 'An error occurred. Please try again.';
             console.error('Authentication error:', error);
-        }
+        }*/
     });
 });
 
