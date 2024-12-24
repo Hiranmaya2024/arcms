@@ -36,4 +36,5 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error('Error loading customer data:', error);
         alert('Error loading data. Please try again later.');
     }
+      paginateTable('ledgerTable', 10); // Apply pagination
 });
