@@ -3,60 +3,1234 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aaradhya Pharmaceuticals - Login</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="styles/styles.css">
+  <title>PharmaOrder Pro | Pharmaceutical Order System</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #1a73e8;
+      --primary-dark: #0d47a1;
+      --secondary: #34a853;
+      --secondary-dark: #2e7d32;
+      --accent: #f57c00;
+      --danger: #ea4335;
+      --danger-dark: #c62828;
+      --light-bg: #f8f9fa;
+      --card-bg: #ffffff;
+      --border: #dadce0;
+      --text-primary: #202124;
+      --text-secondary: #5f6368;
+      --success-bg: #e8f5e9;
+      --error-bg: #ffebee;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.12);
+      --radius: 12px;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #f0f7ff 0%, #e3f2fd 100%);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    /* Header Styles */
+    header {
+      background: linear-gradient(to right, var(--primary), var(--primary-dark));
+      color: white;
+      padding: 25px 30px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    header::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+      transform: rotate(30deg);
+    }
+    
+    h1 {
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 2;
+      font-weight: 700;
+    }
+    
+    .app-subtitle {
+      font-size: clamp(0.9rem, 2vw, 1.1rem);
+      opacity: 0.9;
+      position: relative;
+      z-index: 2;
+    }
+    
+    .pharma-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.15);
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      margin-bottom: 15px;
+    }
+    
+    /* Form Styles */
+    .form-section {
+      padding: 25px 30px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+      margin-bottom: 20px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 0.95rem;
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 1rem;
+      transition: all 0.3s;
+      background: white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    
+    .form-control:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.2);
+    }
+    
+    /* Table Styles */
+    .table-section {
+      padding: 25px 30px;
+    }
+    
+    .section-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--border);
+    }
+    
+    .section-header h2 {
+      font-size: clamp(1.3rem, 3vw, 1.8rem);
+      color: var(--text-primary);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .section-header i {
+      color: var(--primary);
+      background: rgba(26, 115, 232, 0.1);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .table-container {
+      overflow-x: auto;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      max-height: 400px;
+      position: relative;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 600px;
+    }
+    
+    th {
+      background-color: #f1f8ff;
+      color: var(--primary-dark);
+      font-weight: 600;
+      padding: 16px 18px;
+      text-align: left;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 2px solid var(--border);
+    }
+    
+    td {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    tr:nth-child(even) {
+      background-color: #f8fbff;
+    }
+    
+    tr:hover {
+      background-color: #e8f0fe;
+    }
+    
+    .loading, .no-results {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+    }
+    
+    /* Stock Indicators */
+    .stock-info {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    
+    .stock-low {
+      color: #e65100;
+      font-weight: bold;
+    }
+    
+    .stock-out {
+      color: var(--danger);
+      font-weight: bold;
+    }
+    
+    /* Order Summary */
+    #orderSummaryContainer {
+      padding: 25px 30px;
+      background: #f8fbff;
+      border-top: 1px solid var(--border);
+    }
+    
+    .summary-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    
+    .cart-count {
+      background: var(--primary);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    
+    .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .summary-table th {
+      background: #e3f2fd;
+    }
+    
+    .summary-table td:last-child {
+      text-align: center;
+    }
+    
+    .summary-table tfoot {
+      font-weight: 600;
+      background: #e8f5e9;
+    }
+    
+    .total-in-words {
+      background: #f1f8e9;
+      padding: 15px 20px;
+      border-radius: 8px;
+      margin-top: 15px;
+      font-style: italic;
+      color: var(--secondary-dark);
+      font-weight: 500;
+    }
+    
+    /* Buttons */
+    .action-section {
+      padding: 25px 30px;
+      background: #f8fbff;
+      border-top: 1px solid var(--border);
+    }
+    
+    .action-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+    }
+    
+    .btn {
+      padding: 14px 25px;
+      color: white;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-weight: 600;
+      box-shadow: var(--shadow);
+      min-width: 220px;
+    }
+    
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-hover);
+    }
+    
+    .btn:active {
+      transform: translateY(0);
+    }
+    
+    .btn-primary { 
+      background: linear-gradient(to right, var(--primary), var(--primary-dark));
+    }
+    
+    .btn-success { 
+      background: linear-gradient(to right, var(--secondary), var(--secondary-dark));
+    }
+    
+    .btn-danger { 
+      background: linear-gradient(to right, var(--danger), var(--danger-dark));
+    }
+    
+    .btn-whatsapp {
+      background: linear-gradient(to right, #25D366, #128C7E);
+    }
+    
+    .remove-item-btn {
+      background: none;
+      border: none;
+      color: var(--danger);
+      cursor: pointer;
+      font-size: 1.2rem;
+      width: 36px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s;
+    }
+    
+    .remove-item-btn:hover {
+      background-color: rgba(234, 67, 53, 0.1);
+    }
+    
+    /* Footer */
+    .app-footer {
+      text-align: center;
+      padding: 20px 30px;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      background: #f1f8ff;
+      border-top: 1px solid var(--border);
+    }
+    
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+    
+    .modal-content {
+      background-color: white;
+      margin: auto;
+      padding: 35px;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 500px;
+      text-align: center;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+      animation: modalAppear 0.3s ease-out;
+    }
+    
+    @keyframes modalAppear {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .modal-title {
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+      color: var(--primary);
+    }
+    
+    .modal-message {
+      font-size: 1.1rem;
+      margin-bottom: 25px;
+      line-height: 1.5;
+      color: var(--text-secondary);
+    }
+    
+    .modal-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+    
+    .modal-btn {
+      padding: 12px 25px;
+      min-width: 120px;
+      font-size: 1rem;
+    }
+    
+    /* Export Container - Fixed width for consistent exports */
+    #exportContainer {
+      position: absolute;
+      left: -9999px;
+      top: -9999px;
+      width: 1000px; /* Increased width to prevent cropping */
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      display: flex;
+      flex-direction: column;
+      padding: 25px;
+      font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    }
+    
+    .export-header {
+      background: linear-gradient(to right, var(--primary), var(--primary-dark));
+      color: white;
+      padding: 25px;
+      border-radius: 10px 10px 0 0;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .export-header h2 {
+      color: white;
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+    }
+    
+    .export-header p {
+      margin: 5px 0;
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+    
+    .export-table-container {
+      overflow-x: auto;
+      margin-bottom: 20px;
+    }
+    
+    .export-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+    
+    .export-table th {
+      background-color: #e3f2fd;
+      color: var(--primary-dark);
+      padding: 12px 15px;
+      text-align: left;
+      position: sticky;
+      top: 0;
+    }
+    
+    .export-table td {
+      padding: 10px 15px;
+      border-bottom: 1px solid var(--border);
+      word-wrap: break-word;
+    }
+    
+    /* Fixed column widths for consistent display - adjusted percentages */
+    .export-table th:nth-child(1), .export-table td:nth-child(1) { width: 15%; }
+    .export-table th:nth-child(2), .export-table td:nth-child(2) { width: 40%; }
+    .export-table th:nth-child(3), .export-table td:nth-child(3) { width: 10%; }
+    .export-table th:nth-child(4), .export-table td:nth-child(4) { width: 15%; }
+    .export-table th:nth-child(5), .export-table td:nth-child(5) { width: 20%; }
+    
+    .export-footer {
+      background: #f1f8e9;
+      padding: 20px;
+      border-radius: 0 0 10px 10px;
+      margin-top: 10px;
+    }
+    
+    .export-total {
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+    }
+    
+    .export-words {
+      font-style: italic;
+      color: var(--secondary-dark);
+      font-weight: 500;
+    }
+    
+    /* Animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-in {
+      animation: fadeIn 0.4s ease-out forwards;
+    }
+    
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .container {
+        margin: 10px;
+      }
+      
+      .form-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+      }
+      
+      .section-header h2 {
+        font-size: 1.4rem;
+      }
+      
+      /* Adjust export container for smaller screens */
+      #exportContainer {
+        width: 100%;
+        max-width: 100%;
+        padding: 15px;
+      }
+      
+      .export-header h2 {
+        font-size: 1.4rem;
+      }
+      
+      .export-table th, .export-table td {
+        padding: 8px 10px;
+        font-size: 0.9rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+      
+      .form-section, .table-section, #orderSummaryContainer, .action-section {
+        padding: 20px;
+      }
+      
+      /* Further adjustments for very small screens */
+      #exportContainer {
+        padding: 10px;
+      }
+      
+      .export-header {
+        padding: 15px;
+      }
+      
+      .export-header h2 {
+        font-size: 1.2rem;
+      }
+      
+      .export-header p {
+        font-size: 0.9rem;
+      }
+      
+      .export-table th, .export-table td {
+        padding: 6px 8px;
+        font-size: 0.8rem;
+      }
+    }
+  
+@media (max-width: 768px), (max-width: 480px) {
+  #exportContainer {
+    width: 1000px !important;
+    max-width: 1000px !important;
+    padding: 25px !important;
+  }
+  .export-table {
+    table-layout: fixed !important;
+    width: 100% !important;
+  }
+  .export-table th,
+  .export-table td {
+    font-size: 1rem !important;
+    padding: 10px 15px !important;
+    word-wrap: break-word;
+    white-space: normal !important;
+  }
+}
+
+</style>
 </head>
 <body>
-  <header class="container-fluid bg-light py-3">
-    <div class="d-flex align-items-center justify-content-between">
-      <div class="d-flex align-items-center">
-        <img src="images/logo.jpg" alt="Logo" class="rounded-circle" style="width: 50px; height: 50px;">
-        <h1 class="ms-3 fs-4 fw-bold">Aaradhya Pharmaceuticals</h1>
+  <div class="container animate-in">
+    <header>
+      <div class="pharma-icon">
+        <i class="fas fa-pills fa-2x"></i>
       </div>
-      <div class="slider-container">
-        <div class="slider">
-          <div class="slide">Welcome to Aaradhya Pharmaceuticals</div>
-          <div class="slide">Have a great time here!</div>
-          <div class="slide">Every order is important. Keep ordering!</div>
+      <h1>PharmaOrder Pro</h1>
+      <p class="app-subtitle">Advanced Pharmaceutical Order Management System</p>
+    </header>
+    
+    <div class="form-section">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="customerName"><i class="fas fa-store"></i> Customer / Shop Name</label>
+          <input type="text" id="customerName" class="form-control" placeholder="Enter shop name">
+        </div>
+        <div class="form-group">
+          <label for="companySelect"><i class="fas fa-building"></i> Select Company</label>
+          <select id="companySelect" class="form-control" onchange="handleCompanyChange()">
+            <option value="">-- Select Company --</option>
+          </select>
         </div>
       </div>
+      
+      <div class="form-group">
+        <label for="itemSearch"><i class="fas fa-search"></i> Search Products</label>
+        <input type="text" id="itemSearch" class="form-control" oninput="debounceRender()" placeholder="Search by product name or code...">
+      </div>
     </div>
-  </header>
 
-  <main class="container my-5">
-    <div class="row">
-      <section class="col-lg-7 mb-4">
-        <h2 class="text-primary">December Lucky Draw Details</h2>
-        <div class="carousel-container">
-          <div class="carousel">
-            <div class="slide"><img src="images/image1.PNG" class="img-fluid rounded" alt="Image 1"></div>
-            <div class="slide"><img src="images/image3.PNG" class="img-fluid rounded" alt="Image 2"></div>
-            <div class="slide"><img src="images/image4.PNG" class="img-fluid rounded" alt="Image 3"></div>
-          </div>
+    <div class="table-section">
+      <div class="section-header">
+        <h2><i class="fas fa-list"></i> Product List</h2>
+      </div>
+      <div class="table-container" id="itemsTableContainer">
+        <table id="itemsTable">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Code</th>
+              <th>Rate (₹)</th>
+              <th>Stock</th>
+              <th>Quantity</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="5" class="loading">Select a company to view products</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <div id="orderSummaryContainer"></div>
+    
+    <div class="action-section">
+      <div class="action-buttons">
+        <button class="btn btn-whatsapp" onclick="sendOnWhatsApp()">
+          <i class="fab fa-whatsapp"></i>
+          Send to WhatsApp
+        </button>
+        <button class="btn btn-success" onclick="generateImage()">
+          <i class="fas fa-download"></i>
+          Export Order Image
+        </button>
+        <button class="btn btn-danger" onclick="clearOrder()">
+          <i class="fas fa-trash-alt"></i>
+          Clear Order
+        </button>
+      </div>
+    </div>
+    
+    <div class="app-footer">
+      <p><i class="fas fa-shield-alt"></i> PharmaOrder Pro v2.1 • Secure Pharmaceutical Order Management</p>
+    </div>
+  </div>
+
+  <!-- Hidden export container -->
+  <div id="exportContainer">
+    <div class="export-header">
+      <h2>PHARMAORDER PRO - ORDER SUMMARY</h2>
+      <p id="exportShopName">Customer: </p>
+      <p id="exportDateTime">Date: </p>
+    </div>
+    
+    <div class="export-table-container">
+      <table class="export-table">
+        <thead>
+          <tr>
+            <th>Company</th>
+            <th>Item</th>
+            <th>Qty</th>
+            <th>Rate</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody id="exportOrderItems">
+          <!-- Order items will be added here -->
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="export-footer">
+      <div class="export-total">
+        <div>Grand Total:</div>
+        <div id="exportGrandTotal">₹0.00</div>
+      </div>
+      <div class="export-words" id="exportTotalInWords">Rupees Zero Only</div>
+    </div>
+  </div>
+
+  <!-- Alert Modal -->
+  <div id="alertModal" class="modal">
+    <div class="modal-content">
+      <h3 class="modal-title" id="modalTitle">Alert</h3>
+      <p class="modal-message" id="modalMessage"></p>
+      <div class="modal-buttons">
+        <button class="btn btn-primary modal-btn" onclick="closeModal()">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- Global Variables ---
+    let allItems = [];
+    let orderCart = [];
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQr4sjY3X6feIrArFpABeMXbtHTOZb5X-psMFvsAXl2KPivzS8xfE_x-HPVmWcw-TnGgW2EiUVRWEDC/pub?output=csv';
+    let debounceTimer;
+    
+    // --- DOM Elements Cache ---
+    const elements = {
+      companySelect: document.getElementById('companySelect'),
+      itemSearch: document.getElementById('itemSearch'),
+      itemsTableContainer: document.getElementById('itemsTableContainer'),
+      customerName: document.getElementById('customerName'),
+      orderSummaryContainer: document.getElementById('orderSummaryContainer'),
+      alertModal: document.getElementById('alertModal'),
+      modalTitle: document.getElementById('modalTitle'),
+      modalMessage: document.getElementById('modalMessage'),
+      exportContainer: document.getElementById('exportContainer'),
+      exportOrderItems: document.getElementById('exportOrderItems'),
+      exportShopName: document.getElementById('exportShopName'),
+      exportDateTime: document.getElementById('exportDateTime'),
+      exportGrandTotal: document.getElementById('exportGrandTotal'),
+      exportTotalInWords: document.getElementById('exportTotalInWords')
+    };
+    
+    // --- Initialization ---
+    document.addEventListener('DOMContentLoaded', () => loadCSVData());
+    
+    // --- Modal Functions ---
+    function showModal(title, message) {
+      elements.modalTitle.textContent = title;
+      elements.modalMessage.textContent = message;
+      elements.alertModal.style.display = 'flex';
+    }
+    
+    function closeModal() {
+      elements.alertModal.style.display = 'none';
+    }
+
+    function loadCSVData() {
+      // Show loading indicator
+      document.querySelector('#itemsTable tbody').innerHTML = '<tr><td colspan="5" class="loading">Loading product data...</td></tr>';
+      
+      Papa.parse(CSV_URL, {
+        download: true, 
+        header: true, 
+        skipEmptyLines: true,
+        complete: results => {
+          if (results.errors.length) {
+            console.error("Errors during parsing:", results.errors);
+            showModal("Data Error", "Failed to load product data. Please try again later.");
+            return;
+          }
+          
+          allItems = results.data.map(row => {
+            const normalized = {};
+            for (const key in row) {
+              if (Object.prototype.hasOwnProperty.call(row, key)) {
+                normalized[key.trim().toLowerCase()] = row[key].trim();
+              }
+            }
+            return normalized;
+          });
+          
+          populateCompanyDropdown();
+          renderOrderSummary();
+        },
+        error: error => {
+          console.error('Error loading CSV:', error);
+          showModal("Connection Error", "Failed to load data. Please check your internet connection.");
+        }
+      });
+    }
+
+    function populateCompanyDropdown() {
+      elements.companySelect.innerHTML = '<option value="">-- Select Company --</option>';
+      const companies = [...new Set(allItems.map(row => row.company).filter(Boolean))].sort();
+      
+      companies.forEach(company => {
+        const option = document.createElement('option');
+        option.value = company;
+        option.textContent = company;
+        elements.companySelect.appendChild(option);
+      });
+    }
+
+    function handleCompanyChange() {
+        elements.itemSearch.value = '';
+        renderProductList();
+    }
+
+    function debounceRender() {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(renderProductList, 300);
+    }
+
+    function renderProductList() {
+      const selectedCompany = elements.companySelect.value;
+      const searchQuery = elements.itemSearch.value.toLowerCase();
+      const tbody = document.querySelector('#itemsTable tbody');
+      tbody.innerHTML = '';
+
+      if (!selectedCompany) {
+        tbody.innerHTML = '<tr><td colspan="5" class="loading">Select a company to view products</td></tr>';
+        return;
+      }
+      
+      let filteredItems = allItems.filter(row => row.company === selectedCompany);
+      
+      if (searchQuery) {
+        filteredItems = filteredItems.filter(row => 
+          row.item.toLowerCase().includes(searchQuery) ||
+          (row.code && row.code.toLowerCase().includes(searchQuery))
+        );
+      }
+      
+      if (filteredItems.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="no-results">No products found ${searchQuery ? 'matching your search' : ''}.</td></tr>`;
+        return;
+      }
+      
+      filteredItems.forEach(row => {
+        const stock = parseInt(row.stock || 0, 10);
+        const rate = parseFloat(row.rate || 0);
+        const cartItem = orderCart.find(item => item.id === `${row.company}-${row.item}`);
+        const currentQty = cartItem ? cartItem.quantity : 0;
+        const remainingStock = stock - currentQty;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${row.item || 'N/A'}</td>
+          <td>${row.code || 'N/A'}</td>
+          <td>₹${rate.toFixed(2)}</td>
+          <td>
+            <div>${stock}</div>
+            <div class="stock-info">Remaining: <span id="rem-stock-${row.company}-${row.item}">${remainingStock}</span></div>
+          </td>
+          <td>
+            <input 
+              type="number" 
+              class="form-control"
+              min="0" 
+              max="${stock}" 
+              value="${currentQty}" 
+              oninput="handleQuantityChange(this, '${row.company}', '${row.item}', ${rate}, ${stock})"
+              ${stock === 0 ? 'disabled' : ''}
+            >
+          </td>
+        `;
+        
+        // Add stock status classes
+        const stockInfo = tr.querySelector('.stock-info');
+        if (stock === 0) {
+          stockInfo.innerHTML = '<span class="stock-out">Out of Stock</span>';
+        } else if (remainingStock < 10) {
+          stockInfo.classList.add('stock-low');
+        }
+        
+        tbody.appendChild(tr);
+      });
+      
+      // Add scrollbar if more than 10 items
+      elements.itemsTableContainer.style.overflowY = filteredItems.length > 10 ? 'auto' : 'visible';
+    }
+
+    function handleQuantityChange(input, company, itemName, rate, stock) {
+        let quantity = parseInt(input.value, 10);
+        
+        // Input validation
+        if (isNaN(quantity) || quantity < 0) {
+            quantity = 0;
+            input.value = 0;
+            showModal("Invalid Input", "Quantity must be a positive number");
+        }
+        
+        if (quantity > stock) {
+            quantity = stock;
+            input.value = stock;
+            showModal("Stock Limit", `Cannot order more than available stock (${stock}) for ${itemName}`);
+        }
+
+        const remainingStockSpan = document.getElementById(`rem-stock-${company}-${itemName}`);
+        if (remainingStockSpan) {
+          remainingStockSpan.textContent = stock - quantity;
+          const stockInfo = remainingStockSpan.parentElement;
+          
+          // Update stock status classes
+          stockInfo.classList.remove('stock-low');
+          if (stock - quantity < 10 && stock - quantity > 0) {
+            stockInfo.classList.add('stock-low');
+          } else if (stock - quantity === 0) {
+            stockInfo.innerHTML = '<span class="stock-out">Out of Stock</span>';
+          }
+        }
+
+        const itemId = `${company}-${itemName}`;
+        const existingItemIndex = orderCart.findIndex(item => item.id === itemId);
+
+        if (quantity > 0) {
+            const orderItem = { 
+              id: itemId, 
+              company, 
+              name: itemName, 
+              rate, 
+              quantity, 
+              stock 
+            };
+            if (existingItemIndex > -1) {
+                orderCart[existingItemIndex] = orderItem;
+            } else {
+                orderCart.push(orderItem);
+            }
+        } else if (existingItemIndex > -1) {
+            orderCart.splice(existingItemIndex, 1);
+        }
+        
+        renderOrderSummary();
+    }
+    
+    function removeFromCart(itemId) {
+        orderCart = orderCart.filter(item => item.id !== itemId);
+        renderProductList();
+        renderOrderSummary();
+    }
+
+    function renderOrderSummary() {
+      elements.orderSummaryContainer.innerHTML = '';
+      if (orderCart.length === 0) return;
+
+      let grandTotal = 0;
+      let summaryHtml = `
+        <div class="section-header">
+          <h2><i class="fas fa-shopping-cart"></i> Order Summary</h2>
+          <div class="cart-count">${orderCart.length} items</div>
         </div>
-      </section>
+        <div class="table-container">
+          <table class="summary-table">
+            <thead>
+              <tr>
+                <th>Company</th>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Rate</th>
+                <th>Total</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>`;
 
-      <section class="col-lg-5">
-        <h2 class="text-primary">Login to View Details</h2>
-        <form id="loginForm" class="bg-light p-4 rounded shadow">
-          <div class="mb-3">
-            <label for="username" class="form-label">Username</label>
-            <input type="text" id="username" class="form-control" placeholder="Enter username" required>
-          </div>
-          <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-            <input type="password" id="password" class="form-control" placeholder="Enter password" required>
-          </div>
-          <button type="submit" class="btn btn-primary w-100">Login</button>
-          <p id="errorMessage" class="text-danger text-center mt-3"></p>
-        </form>
-        <p id="errormessage" class="error-message"></p>
-      </section>
-    </div>
-  </main>
-  <script src="scripts/config.js"></script>
-  <script src="scripts/google-sheets-api.js"></script>
-  <script src="scripts/auth.js"></script>
+      orderCart.forEach(item => {
+        const itemTotal = item.quantity * item.rate;
+        grandTotal += itemTotal;
+        summaryHtml += `
+          <tr class="cart-item">
+            <td>${item.company}</td>
+            <td>${item.name}</td>
+            <td>${item.quantity}</td>
+            <td>₹${item.rate.toFixed(2)}</td>
+            <td>₹${itemTotal.toFixed(2)}</td>
+            <td>
+              <button class="remove-item-btn" onclick="removeFromCart('${item.id}')" title="Remove item">
+                <i class="fas fa-times"></i>
+              </button>
+            </td>
+          </tr>`;
+      });
+      
+      // Round grand total to avoid decimal issues in words conversion
+      const roundedTotal = Math.round(grandTotal);
+      
+      summaryHtml += `
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="4">Grand Total</td>
+                <td colspan="2">₹${grandTotal.toFixed(2)}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <div class="total-in-words">Rupees ${numberToWords(roundedTotal)} Only</div>`;
+
+      elements.orderSummaryContainer.innerHTML = summaryHtml;
+    }
+    
+    function clearOrder() {
+        if (orderCart.length === 0) {
+            showModal("Empty Order", "Your cart is already empty.");
+            return;
+        }
+        
+        if (confirm("Are you sure you want to clear your entire order?")) {
+            orderCart = [];
+            elements.customerName.value = '';
+            elements.itemSearch.value = '';
+            renderProductList();
+            renderOrderSummary();
+        }
+    }
+
+    function sendOnWhatsApp() {
+        const customerName = elements.customerName.value.trim();
+        if (!customerName) {
+            showModal("Missing Information", "Please enter a customer or shop name before sending.");
+            return;
+        }
+        if (orderCart.length === 0) {
+            showModal("Empty Order", "Your cart is empty. Please add items to place an order.");
+            return;
+        }
+
+        generateImage(true);
+    }
+
+    function generateImage(whatsappShare = false) {
+      if (orderCart.length === 0) {
+        showModal("Empty Order", "Your cart is empty. Nothing to download.");
+        return;
+      }
+
+      showModal("Processing", "Generating order image...");
+
+      const customerName = elements.customerName.value.trim() || 'N/A';
+      const date = new Date();
+      const dateStr = date.toLocaleDateString('en-GB');
+      const timeStr = date.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
+      
+      // Update export container
+      elements.exportShopName.textContent = `Customer: ${customerName}`;
+      elements.exportDateTime.textContent = `Date: ${dateStr} ${timeStr}`;
+      
+      // Clear previous items
+      elements.exportOrderItems.innerHTML = '';
+      
+      // Add all order items to export table
+      let grandTotal = 0;
+      orderCart.forEach(item => {
+        const itemTotal = item.quantity * item.rate;
+        grandTotal += itemTotal;
+        
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${item.company}</td>
+          <td>${item.name}</td>
+          <td>${item.quantity}</td>
+          <td>₹${item.rate.toFixed(2)}</td>
+          <td>₹${itemTotal.toFixed(2)}</td>
+        `;
+        elements.exportOrderItems.appendChild(tr);
+      });
+      
+      // Round grand total to avoid decimal issues in words conversion
+      const roundedTotal = Math.round(grandTotal);
+      
+      // Update totals
+      elements.exportGrandTotal.textContent = `₹${grandTotal.toFixed(2)}`;
+      elements.exportTotalInWords.textContent = `Rupees ${numberToWords(roundedTotal)} Only`;
+      
+      
+      // --- Company-wise summary ---
+      const companyTotals = {};
+      orderCart.forEach(item => {
+        if (!companyTotals[item.company]) {
+          companyTotals[item.company] = 0;
+        }
+        companyTotals[item.company] += item.quantity * item.rate;
+      });
+
+      let companySummaryHTML = `
+        <table class="summary-table" style="margin-top: 20px; border: 1px solid var(--border); width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="background-color: #e3f2fd;">
+              <th style="padding: 10px; text-align: left;">Company</th>
+              <th style="padding: 10px; text-align: right;">Total Value (₹)</th>
+            </tr>
+          </thead>
+          <tbody>`;
+
+      for (const [company, total] of Object.entries(companyTotals)) {
+        companySummaryHTML += `
+          <tr>
+            <td style="padding: 10px;">${company}</td>
+            <td style="padding: 10px; text-align: right;">₹${total.toFixed(2)}</td>
+          </tr>`;
+      }
+
+      companySummaryHTML += `</tbody></table>`;
+
+      const summaryNode = document.createElement('div');
+      summaryNode.innerHTML = companySummaryHTML;
+      elements.exportContainer.insertBefore(summaryNode, document.querySelector('.export-footer'));
+
+      // Show the export container temporarily for rendering
+      elements.exportContainer.style.display = 'block';
+      
+      // Use html2canvas to capture the entire export container
+      html2canvas(elements.exportContainer, {
+        scale: 2,
+        backgroundColor: "#FFFFFF",
+        useCORS: true,
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: elements.exportContainer.scrollWidth,
+        windowHeight: elements.exportContainer.scrollHeight,
+        logging: true,
+        allowTaint: true,
+        useCORS: true
+      }).then(canvas => {
+        // Hide the export container again
+        elements.exportContainer.style.display = 'none';
+        
+        // Create download link
+        const imgData = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        const fileName = `PharmaOrder_${customerName.replace(/\s+/g, '_')}_${dateStr.replace(/\//g, '-')}.png`;
+        
+        link.href = imgData;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        closeModal();
+        
+        if (whatsappShare) {
+          showModal("Image Ready", "Your complete order image has been downloaded. Please attach it to WhatsApp manually.");
+        }
+      }).catch(error => {
+        console.error("Error generating image:", error);
+        closeModal();
+        showModal("Export Error", "Failed to generate image. Please try again.");
+      });
+    }
+
+    function numberToWords(n) {
+        if (isNaN(n) || n < 0) return "Invalid Number";
+        n = Math.round(n); // Ensure integer
+        if (n === 0) return 'Zero';
+        
+        const a = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 
+                  'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+        const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+        
+        const transform = (num) => {
+            let str = '';
+            if (num > 99) {
+                str += a[Math.floor(num / 100)] + ' Hundred ';
+                num %= 100;
+            }
+            if (num > 19) {
+                str += b[Math.floor(num / 10)] + ' ' + a[num % 10];
+            } else {
+                str += a[num];
+            }
+            return str.trim();
+        };
+        
+        let result = '';
+        let remaining = n;
+
+        if (remaining > 9999999) {
+            const crores = Math.floor(remaining / 10000000);
+            result += transform(crores) + ' Crore ';
+            remaining %= 10000000;
+        }
+        if (remaining > 99999) {
+            const lakhs = Math.floor(remaining / 100000);
+            result += transform(lakhs) + ' Lakh ';
+            remaining %= 100000;
+        }
+        if (remaining > 999) {
+            const thousands = Math.floor(remaining / 1000);
+            result += transform(thousands) + ' Thousand ';
+            remaining %= 1000;
+        }
+        if (remaining > 0) {
+            result += transform(remaining);
+        }
+
+        return result.trim().replace(/\s+/g, ' ');
+    }
+  </script>
 </body>
 </html>
+
