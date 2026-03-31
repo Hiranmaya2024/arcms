@@ -3,29 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Order Form</title>
+    <title>Order Form - Paginated</title>
     <style>
-        body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f9; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h2 { color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
-        .loading { color: #007bff; font-weight: bold; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; background-color: #f8f9fa; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        h2 { color: #2c3e50; border-bottom: 3px solid #007bff; padding-bottom: 10px; margin-bottom: 20px; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { padding: 12px; border: 1px solid #dee2e6; text-align: left; }
         th { background-color: #007bff; color: white; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
+        tr:hover { background-color: #f1f1f1; }
         
-        input[type="number"] { width: 60px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; }
-        .btn { background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
-        .btn:hover { background: #218838; }
-        .summary { margin-top: 20px; font-weight: bold; font-size: 1.2em; text-align: right; }
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 20px; }
+        .page-btn { padding: 8px 16px; border: 1px solid #007bff; background: white; color: #007bff; cursor: pointer; border-radius: 4px; transition: 0.3s; }
+        .page-btn:disabled { border-color: #ccc; color: #ccc; cursor: not-allowed; }
+        .page-btn:hover:not(:disabled) { background: #007bff; color: white; }
+        
+        .footer-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
+        .total-box { font-size: 1.4em; font-weight: bold; color: #28a745; }
+        .order-btn { background: #28a745; color: white; padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-size: 18px; }
+        .order-btn:hover { background: #218838; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h2>Inventory Order Form</h2>
-    <div id="loader" class="loading">Fetching latest stock data...</div>
+    <div id="loader">Loading products...</div>
     
     <table id="orderTable" style="display:none;">
         <thead>
@@ -33,101 +37,125 @@
                 <th>Item Name</th>
                 <th>Company</th>
                 <th>Expiry</th>
-                <th>MRP</th>
                 <th>Rate</th>
                 <th>Stock</th>
                 <th>Order Qty</th>
             </tr>
         </thead>
-        <tbody id="inventoryBody">
-            </tbody>
+        <tbody id="inventoryBody"></tbody>
     </table>
 
-    <div class="summary">
-        Total Amount: $<span id="grandTotal">0.00</span>
+    <div class="pagination" id="paginationControls" style="display:none;">
+        <button class="page-btn" id="prevBtn" onclick="changePage(-1)">Previous</button>
+        <span id="pageInfo">Page 1 of X</span>
+        <button class="page-btn" id="nextBtn" onclick="changePage(1)">Next</button>
     </div>
-    
-    <div style="margin-top: 20px;">
-        <button class="btn" onclick="placeOrder()">Place Order</button>
+
+    <div class="footer-controls">
+        <div class="total-box">Total: $<span id="grandTotal">0.00</span></div>
+        <button class="order-btn" onclick="placeOrder()">Place Order</button>
     </div>
 </div>
 
 <script>
     const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTJmM74VQeW2jYoTPI9u4PN95ZrqFnMOtDDNY6wTCikoWCN8rmwvfOfxOoZ8AziWiLCRDs6Df-PTQkM/pub?output=csv';
+    
+    let allProducts = [];
+    let orderQuantities = {}; // To remember quantities across pages
+    let currentPage = 1;
+    const itemsPerPage = 10;
 
-    async function fetchData() {
+    async function init() {
         try {
             const response = await fetch(csvUrl);
-            const data = await response.text();
-            processData(data);
-        } catch (error) {
-            document.getElementById('loader').innerText = "Error loading data. Please check link sharing settings.";
-            console.error(error);
+            const csvText = await response.text();
+            const lines = csvText.split('\n').map(line => line.split(','));
+            
+            // Skip header (index 0), filter empty rows
+            allProducts = lines.slice(1).filter(row => row[0]); 
+            
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('orderTable').style.display = 'table';
+            document.getElementById('paginationControls').style.display = 'flex';
+            
+            renderTable();
+        } catch (e) {
+            document.getElementById('loader').innerText = "Failed to load data.";
         }
     }
 
-    function processData(csvText) {
-        const lines = csvText.split('\n').map(line => line.split(','));
-        const tableBody = document.getElementById('inventoryBody');
-        
-        // Start from index 1 to skip header row
-        for (let i = 1; i < lines.length; i++) {
-            const [item, stock, mrp, rate, company, batch, expiry] = lines[i];
-            
-            if (!item) continue;
+    function renderTable() {
+        const tbody = document.getElementById('inventoryBody');
+        tbody.innerHTML = '';
+
+        const start = (currentPage - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        const pageData = allProducts.slice(start, end);
+
+        pageData.forEach((product, index) => {
+            const [item, stock, mrp, rate, company, batch, expiry] = product;
+            const globalIndex = start + index; // Unique ID for storing quantity
+            const currentQty = orderQuantities[globalIndex] || 0;
 
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>**${item}**<br><small>Batch: ${batch}</small></td>
                 <td>${company}</td>
                 <td>${expiry}</td>
-                <td>${mrp}</td>
-                <td class="rate">${rate}</td>
+                <td>${rate}</td>
                 <td>${stock}</td>
                 <td>
-                    <input type="number" min="0" max="${stock}" value="0" onchange="calculateTotal()">
+                    <input type="number" min="0" max="${stock}" value="${currentQty}" 
+                           oninput="updateQty(${globalIndex}, ${rate}, this.value)">
                 </td>
             `;
-            tableBody.appendChild(row);
-        }
+            tbody.appendChild(row);
+        });
 
-        document.getElementById('loader').style.display = 'none';
-        document.getElementById('orderTable').style.display = 'table';
+        updatePaginationUI();
+    }
+
+    function updateQty(index, rate, value) {
+        orderQuantities[index] = parseInt(value) || 0;
+        calculateTotal();
     }
 
     function calculateTotal() {
         let total = 0;
-        const rows = document.querySelectorAll('#inventoryBody tr');
-        rows.forEach(row => {
-            const rate = parseFloat(row.querySelector('.rate').innerText);
-            const qty = parseInt(row.querySelector('input').value);
-            if (qty > 0) {
-                total += rate * qty;
-            }
+        // Calculate based on all stored quantities in memory
+        Object.keys(orderQuantities).forEach(key => {
+            const rate = parseFloat(allProducts[key][3]); // Rate is 4th col (index 3)
+            total += rate * orderQuantities[key];
         });
         document.getElementById('grandTotal').innerText = total.toFixed(2);
     }
 
+    function changePage(step) {
+        currentPage += step;
+        renderTable();
+        window.scrollTo(0, 0);
+    }
+
+    function updatePaginationUI() {
+        const totalPages = Math.ceil(allProducts.length / itemsPerPage);
+        document.getElementById('pageInfo').innerText = `Page ${currentPage} of ${totalPages}`;
+        document.getElementById('prevBtn').disabled = (currentPage === 1);
+        document.getElementById('nextBtn').disabled = (currentPage === totalPages);
+    }
+
     function placeOrder() {
-        const orders = [];
-        const rows = document.querySelectorAll('#inventoryBody tr');
-        
-        rows.forEach(row => {
-            const qty = row.querySelector('input').value;
-            if (qty > 0) {
-                orders.push(`${row.cells[0].innerText.split('\n')[0]} (Qty: ${qty})`);
+        const summary = [];
+        Object.keys(orderQuantities).forEach(key => {
+            if (orderQuantities[key] > 0) {
+                summary.push(`${allProducts[key][0]} (Qty: ${orderQuantities[key]})`);
             }
         });
 
-        if (orders.length === 0) {
-            alert("Please select at least one item.");
-        } else {
-            alert("Order Placed Successfully!\n\n" + orders.join('\n'));
-            // Here you would typically send 'orders' to a database or email service
-        }
+        if (summary.length === 0) return alert("Select at least one item.");
+        alert("Order Received:\n\n" + summary.join('\n'));
     }
 
-    fetchData();
+    init();
 </script>
 
 </body>
